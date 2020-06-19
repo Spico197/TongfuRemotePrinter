@@ -1,0 +1,60 @@
+{% extends 'user_panel.html' %}
+{% block content %}
+  <div class="container">
+    <h3>学号：{{ user.username }} - 姓名：{{ user.name }}</h3>
+    <ul class="list-group">
+      <li class="list-group-item">
+        <p>
+          您累积打印了 {{ print_num }} 次文件
+        </p>
+      </li>
+      <li class="list-group-item">
+        <h4>{{ instruction }}</h4>
+        <form id="print-form" name="print-form" method="post" class="form-horizontal" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="print_file" class="col-sm-2 control-label">待打印文件</label>
+            <div class="col-sm-10">
+              <input type="file" id="print_file" name="print_file">
+              <input type="text" id="pmode" name="action" style="display: none;">
+              <p class="help-block">支持*.pdf</p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="print_settings" class="col-sm-2 control-label">打印参数</label>
+            <div class="col-sm-10">
+              <input type="text" id="print_settings" name="print_settings">
+              <p class="help-block">如指定打印页码，长短边翻转等。默认无参数，自定义规则可见<a href="https://www.sumatrapdfreader.org/docs/Command-line-arguments.html" target="_blank">此处</a><code>-print-settings</code>部分，然后选择<code>单面打印</code></p>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+              <input type="button" value="单面打印" onClick="print()">
+              <input type="button" value="上传" onClick="upload()">
+              <input type="button" value="双面打印" onClick="duplex()">
+            </div>
+          </div>
+        </form>
+      </li>
+    </ul>
+  </div>
+<script>
+
+function print()
+{
+    document.getElementById("print-form").submit();
+}
+
+function upload()
+{
+    document.getElementById("pmode").value="upload";
+    print();
+}
+
+function duplex()
+{
+    document.getElementById("pmode").value="duplex";
+    print();
+}
+</script>
+{% endblock %}
