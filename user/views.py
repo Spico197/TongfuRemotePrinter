@@ -136,18 +136,18 @@ def panel(request):
 
                 if action == 'upload':
                     context['instruction'] = '上传成功'
-                elif action == 'duplex':
-                    if print_file.name.split('.')[-1].lower() != 'pdf':
-                        context['instruction'] = '文件已上传，但不支持非PDF文件的打印'
-                        return render(request, 'print.html', context=context)
-                    context['instruction'] = '上传成功，准备双面打印'
-                    print_num = UserPrintRecord.objects.filter(user=request.user).count()
-                    context['print_num'] = print_num
-                    if print_settings:
-                        print_settings = print_settings + ",duplex"
-                    else:
-                        print_settings = "duplex"
-                    print_pdf_sumatra(file_path_name, print_settings)
+                # elif action == 'duplex':
+                #     if print_file.name.split('.')[-1].lower() != 'pdf':
+                #         context['instruction'] = '文件已上传，但不支持非PDF文件的打印'
+                #         return render(request, 'print.html', context=context)
+                #     context['instruction'] = '上传成功，准备双面打印'
+                #     print_num = UserPrintRecord.objects.filter(user=request.user).count()
+                #     context['print_num'] = print_num
+                #     if print_settings:
+                #         print_settings = print_settings + ",duplex"
+                #     else:
+                #         print_settings = "duplex"
+                #     print_pdf_sumatra(file_path_name, print_settings)
                 else:
                     if print_file.name.split('.')[-1].lower() != 'pdf':
                         context['instruction'] = '文件已上传，但不支持非PDF文件的打印'
