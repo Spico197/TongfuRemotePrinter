@@ -1,46 +1,53 @@
 {% extends 'user_panel.html' %}
 {% block content %}
 <div class="container" id="app"
-    style="box-shadow: 0 0 30px -10px;padding: 45px 45px 35px;max-width: 1024px;margin-top: 60px;margin-bottom: 40px;">
-    <el-form ref="form" :model="form" label-width="80px">
+    style="box-shadow: 0 0 30px -10px;padding: 45px 45px 35px;max-width: 1024px;margin-top: 40px;margin-bottom: 40px;">
+    <el-form ref="form" :model="form" label-width="90px">
         <el-form-item label="打印文件">
             <el-upload class="upload-file" fileList="form.file" drag action="" :limit="1" :on-change="handleChange"
                 :on-exceed="handleExceed" :auto-upload="false">
                 <i class="el-icon-upload"></i>
-                <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+                <div class="el-upload__text">将文件拖到此处，或<em>点击</em></div>
             </el-upload>
         </el-form-item>
-        <el-form-item label="打印范围" style="max-width: 440px;">
-            <el-input v-model="form.range"></el-input>
+        <el-form-item label="自定义打印">
+            <el-switch
+                v-model="form.customer"
+                active-color="#13ce66"
+                inactive-color="#aaaaaa">
+            </el-switch>
         </el-form-item>
-        <el-form-item label="奇偶页">
+        <el-form-item label="打印范围" style="max-width: 440px;" v-if="form.customer">
+            <el-input v-model="form.range" placeholder="默认为所有页面 (格式：1,3,10-15)"></el-input>
+        </el-form-item>
+        <el-form-item label="奇偶页" v-if="form.customer">
             <el-radio-group v-model="form.eo">
                 <el-radio label="">全部</el-radio>
                 <el-radio label="odd">仅奇数页</el-radio>
                 <el-radio label="even">仅偶数页</el-radio>
             </el-radio-group>
         </el-form-item>
-        <el-form-item label="页面缩放">
+        <el-form-item label="页面缩放" v-if="form.customer">
             <el-radio-group v-model="form.scale">
                 <el-radio label="noscale">实际大小</el-radio>
                 <el-radio label="shrink">缩小过大页面</el-radio>
                 <el-radio label="fit">合适</el-radio>
             </el-radio-group>
         </el-form-item>
-        <el-form-item label="打印颜色">
+        <el-form-item label="打印颜色" v-if="form.customer">
             <el-radio-group v-model="form.color">
                 <el-radio label="color">彩色</el-radio>
                 <el-radio label="monochrome">单色</el-radio>
             </el-radio-group>
         </el-form-item>
-        <el-form-item label="单双面">
+        <el-form-item label="单双面" v-if="form.customer">
             <el-radio-group v-model="form.duplex">
                 <el-radio label="duplexlong">双面打印(沿长边翻转)[推荐]</el-radio>
                 <el-radio label="duplexshort">双面打印(沿短边翻转)</el-radio>
                 <el-radio label="simplex">单面打印</el-radio>
             </el-radio-group>
         </el-form-item>
-        <el-form-item label="页面大小">
+        <el-form-item label="页面大小" v-if="form.customer">
             <el-radio-group disabled v-model="form.size">
                 <el-radio label="A4"></el-radio>
                 <el-radio label="A5"></el-radio>
@@ -49,7 +56,9 @@
             </el-radio-group>
         </el-form-item>
         <el-form-item>
-            <el-button type="primary" @click="onSubmit">打印</el-button>
+            <el-button type="primary" @click="onSimplexSubmit" v-if="!form.customer">单面打印</el-button>
+            <el-button type="primary" @click="onSubmit" v-if="!form.customer">双面打印</el-button>
+            <el-button type="primary" @click="onSubmit" v-if="form.customer">打印</el-button>
             <el-button @click="onUpload">上传</el-button>
         </el-form-item>
     </el-form>
@@ -66,10 +75,15 @@
                         color: 'color',
                         duplex: 'duplexlong',
                         size: 'A4',
+                        customer: false,
                     }
                 }
             },
             methods: {
+                onSimplexSubmit() {
+                    this.form.duplex = 'simplex'
+                    this.doPost("")
+                },
                 onSubmit() {
                     this.doPost("")
                 },
@@ -132,9 +146,14 @@
                     formData.append("print_settings", print_settings)
                     formData.append("action", action)
 
+                    var token_csrf = "{{ csrf_token }}";
                     var request = new XMLHttpRequest();
                     request.open("POST", "./");
+                    request.setRequestHeader('X-CSRFToken', token_csrf);
                     request.send(formData);
+                    this.$alert('提交成功的回调函数还没写，不过应该已经成功了:D', ':D', {
+                        confirmButtonText: '确定'
+                    });
                 }
             }
         })
