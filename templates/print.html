@@ -20,6 +20,9 @@
         <el-form-item label="打印范围" style="max-width: 440px;" v-if="form.customer">
             <el-input v-model="form.range" placeholder="默认为所有页面 (格式：1,3,10-15)"></el-input>
         </el-form-item>
+        <el-form-item label="打印份数" style="max-width: 440px;" v-if="form.customer">
+            <el-input v-model="form.quantity" placeholder="默认为1份"></el-input>
+        </el-form-item>
         <el-form-item label="奇偶页" v-if="form.customer">
             <el-radio-group v-model="form.eo">
                 <el-radio label="">全部</el-radio>
@@ -70,6 +73,7 @@
                 return {
                     form: {
                         range: '',
+                        quantity: '1',
                         eo: '',
                         scale: 'shrink',
                         color: 'color',
@@ -142,6 +146,12 @@
                             print_settings += ","
                         }
                         print_settings += this.form.size
+                    }
+                    if (this.form.quantity != '') {
+                        if (print_settings != '') {
+                            print_settings += ","
+                        }
+                        print_settings += this.form.quantity + "x"
                     }
                     formData.append("print_settings", print_settings)
                     formData.append("action", action)
